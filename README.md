@@ -15,6 +15,9 @@ These scripts handle both known formats:
 
 ### 1. SVG Injector – JSON Mode
 Handles newer MathsOnline interactives where SVG data is returned inside JSON responses.
+Eg:
+<img width="2242" height="1146" alt="image" src="https://github.com/user-attachments/assets/35939c32-85c0-4557-8c93-3bfd95f9cd6e" />
+
 
 #### Key Features
 - Intercepts:
