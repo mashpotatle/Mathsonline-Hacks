@@ -120,48 +120,6 @@ SVG Injector [Script2]: Injected for question 2
 
 ---
 
-## Known Issues
-
-### 1. Timing / Race Conditions
-
-* MathsOnline re-renders SVG after load
-* Injected elements may be removed
-
-### 2. DOM Reuse
-
-* Same container reused across questions
-* Requires delayed or repeated injection
-
-### 3. Index Mismatch (Script 2)
-
-* `translateX` calculation may desync with SVG order
-
-### 4. Duplicate Injection
-
-* Some elements (e.g. polygons) may be injected multiple times
-
----
-
-## Suggested Improvements
-
-* Inject only the correct solution:
-
-  ```js
-  const correct = json.components.find(c =>
-    JSON.parse(c.Data).Correct === "true"
-  );
-  ```
-
-* Add injection delay to avoid renderer overwrite
-
-* Normalize SVG positioning
-
-* Prevent duplicate inserts
-
-* Improve slide index tracking (Script 2)
-
----
-
 ## Disclaimer
 
 This project modifies client-side behaviour of MathsOnline for debugging and educational purposes.
