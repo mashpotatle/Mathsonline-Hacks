@@ -38,6 +38,9 @@ Handles newer MathsOnline interactives where SVG data is returned inside JSON re
 ### 2. SVG Injector – TranslateX Mode
 
 Handles older/alternate interactives where each question is a sliding panel.
+Eg:
+<img width="2300" height="1118" alt="image" src="https://github.com/user-attachments/assets/5cf4ffff-ac99-49a4-b292-37260b4a64a4" />
+
 
 #### Key Features
 
