@@ -1,4 +1,3 @@
-````markdown
 # SVG Injector (MathsOnline SVG Solutions)
 
 ## Overview
@@ -30,8 +29,6 @@ These endpoints return JSON containing:
 {
   "svg": "<svg>...</svg>"
 }
-````
-
 ---
 
 ### 2. SVG Extraction
