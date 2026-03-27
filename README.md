@@ -1,141 +1,164 @@
-# SVG Injector (MathsOnline SVG Solutions)
+# SVG Injector (MathsOnline)
 
 ## Overview
-This userscript intercepts SVG interactive responses from **MathsOnline** and injects solution graphics (e.g. answer arrows) directly into the question display.
+This project contains two Tampermonkey userscripts designed to extract and inject solution visuals (such as answer arrows) from MathsOnline SVG-based questions.
 
-It works by hooking into network requests, extracting the SVG data returned by the platform, and inserting specific solution elements into the rendered SVG.
+MathsOnline uses multiple formats for delivering SVG interactives.  
+These scripts handle both known formats:
 
----
-
-## Features
-- Intercepts both **fetch** and **XMLHttpRequest (XHR)** calls
-- Extracts embedded SVG from JSON responses
-- Parses SVG into DOM عناصر
-- Injects solution groups (`g.solutionX`) into the question
-- Heavy logging for debugging and tracing execution
-- Scoped to MathsOnline only (no unnecessary global execution)
+- **Script 1 (JSON Mode)** → Extracts SVG directly from JSON responses  
+- **Script 2 (TranslateX Mode)** → Tracks slide movement and injects SVGs based on position  
 
 ---
 
-## How It Works
+## Scripts
 
-### 1. Request Interception
-The script listens for requests to:
-- `/ajax/svg_interactives/startQuestionSet`
-- `/ajax/svg_interactives/getNextSvgInteractive`
+### 1. SVG Injector – JSON Mode
+Handles newer MathsOnline interactives where SVG data is returned inside JSON responses.
 
-These endpoints return JSON containing:
-```json
-{
-  "svg": "<svg>...</svg>"
-}
----
+#### Key Features
+- Intercepts:
+  - `/ajax/svg_interactives/startQuestionSet`
+  - `/ajax/svg_interactives/getNextSvgInteractive`
+- Extracts `svg` string from JSON
+- Parses SVG into DOM
+- Injects solution groups (`g.solutionX`)
+- Heavy debug logging
+- Handles dynamic rendering timing
 
-### 2. SVG Extraction
+#### How It Works
+1. Hooks into **fetch + XHR**
+2. Detects relevant API calls
+3. Extracts:
+   ```json
+   {
+     "svg": "<svg>...</svg>"
+   }
 
-The script pulls the `svg` string from the response and parses it:
+### 2. SVG Injector – TranslateX Mode
 
-```js
-const parser = new DOMParser();
-const svgDoc = parser.parseFromString(svgString, "image/svg+xml");
-```
+Handles older/alternate interactives where each question is a sliding panel.
 
----
+#### Key Features
 
-### 3. Solution Detection
+* Captures `.svg` file requests
+* Stores SVG URLs in order
+* Tracks question changes using `translateX(...)`
+* Injects corresponding SVG when slide changes
+* Heavy debug logging
 
-Within the SVG, solution elements are stored as:
+#### How It Works
 
-```xml
-<g class="solution1">
-<g class="solution2">
-...
-```
+1. Intercepts all `.svg` network requests
+2. Stores URLs in an array
+3. Watches:
 
-Each solution group contains:
+   ```html
+   #svgui-content-host
+   ```
+4. Reads:
 
-* Arrow graphics (path + polygon)
-* Positioning relative to the correct answer
-
----
-
-### 4. Injection
-
-The script finds the active question container:
-
-```js
-g.question1[data-id="question1"]
-```
-
-Then injects solution elements:
-
-```js
-questionGroup.appendChild(sol.cloneNode(true));
-```
-
----
-
-### 5. Rendering Timing
-
-MathsOnline dynamically re-renders SVG content.
-To avoid injected elements being removed:
-
-* Injection must occur **after rendering completes**
-* A delay or visibility check is required
+   ```css
+   transform: translateX(-100%)
+   ```
+5. Converts position → question index
+6. Fetches and injects correct SVG
 
 ---
 
 ## Installation
 
-1. Install a userscript manager:
+1. Install **Tampermonkey**
+2. Add both scripts:
 
-   * Tampermonkey (recommended)
+   * Script 1 (JSON Mode)
+   * Script 2 (TranslateX Mode)
+3. Ensure they are enabled
+4. Visit:
 
-2. Create a new script
-
-3. Paste the script code
-
-4. Ensure metadata block is:
-
-```js
-// ==UserScript==
-// @name         SVG Injector (MathsOnline SVG Solutions)
-// @namespace    https://www.mathsonline.com.au/
-// @version      1.2
-// @description  Intercepts SVG interactive responses and injects solution elements.
-// @match        https://www.mathsonline.com.au/*
-// @run-at       document-start
-// @grant        none
-// @noframes
-// ==/UserScript==
-```
+   ```
+   https://www.mathsonline.com.au/
+   ```
 
 ---
 
 ## Logging
 
-The script includes detailed console logging:
+Both scripts include **heavy console logging** for debugging.
+
+### Script 1 Logs
 
 * Request interception
-* URL matching
 * JSON parsing
 * SVG parsing
 * Solution detection
 * Injection status
 
+### Script 2 Logs
+
+* SVG request capture
+* Stored SVG list
+* translateX parsing
+* Slide index calculation
+* Injection events
+
 Example:
 
 ```
-SVG Injector [Script1]: Intercepted fetch: /ajax/svg_interactives/getNextSvgInteractive
-SVG Injector [Script1]: SVG detected, injecting
+SVG Injector [Script1]: Intercepted fetch
 SVG Injector [Script1]: Injected solution 1
+
+SVG Injector [Script2]: Slide changed: 1 → 2
+SVG Injector [Script2]: Injected for question 2
 ```
+
+---
+
+## Known Issues
+
+### 1. Timing / Race Conditions
+
+* MathsOnline re-renders SVG after load
+* Injected elements may be removed
+
+### 2. DOM Reuse
+
+* Same container reused across questions
+* Requires delayed or repeated injection
+
+### 3. Index Mismatch (Script 2)
+
+* `translateX` calculation may desync with SVG order
+
+### 4. Duplicate Injection
+
+* Some elements (e.g. polygons) may be injected multiple times
+
+---
+
+## Suggested Improvements
+
+* Inject only the correct solution:
+
+  ```js
+  const correct = json.components.find(c =>
+    JSON.parse(c.Data).Correct === "true"
+  );
+  ```
+
+* Add injection delay to avoid renderer overwrite
+
+* Normalize SVG positioning
+
+* Prevent duplicate inserts
+
+* Improve slide index tracking (Script 2)
 
 ---
 
 ## Disclaimer
 
-This script modifies client-side behaviour of MathsOnline and is intended for educational and debugging purposes only.
+This project modifies client-side behaviour of MathsOnline for debugging and educational purposes.
 
 Use responsibly.
 
