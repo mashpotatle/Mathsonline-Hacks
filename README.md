@@ -80,13 +80,12 @@ Eg:
    * Script 1 (JSON Mode)
    * Script 2 (TranslateX Mode)
 3. Ensure they are enabled
-4. Visit:
-
+4. Visit: 
    ```
    https://www.mathsonline.com.au/
    ```
+If you do not have tamper monkey or another script manager, Script 1 can be injected (pasted into console) at any point before clicking "start questions", however Script 2 has to be injected before svg requests are made, so if you are quick you can refresh and paste before the questions start loading, or go to the "network" tab in dev tools, set throttling to 3g, refresh. This should give much more time. then go back to console and paste then to network tab to set throttling to none
 
-IF you do not have tamper monkey or another script manager, Script 1 can be injected (pasted into console) at any point before clicking "start questions", however Script 2 has to be injected before svg requests are made, so if you are quick you can refresh and paste before the questions start loading, or go to the "network" tab in dev tools, set throttling to 3g, refresh. This should give much more time. then go back to console and paste then to network tab to set throttling to none
 ---
 
 ## Logging
